@@ -73,3 +73,15 @@ func (s *Service) SaveAudiences(ctx context.Context, audiences ...Audience) ([]s
 
 	return audiencesIDs, nil
 }
+
+type EmptyAudiencesFilter struct {
+	Building string
+	WeekType string
+	WeekDay  string
+	Period   int
+	Floor    int
+}
+
+func (s *Service) ListEmptyAudiences(ctx context.Context, filters *EmptyAudiencesFilter) ([]Audience, error) {
+	return s.scheduleStorage.ListEmptyAudiences(ctx, filters)
+}
