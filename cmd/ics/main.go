@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"ics/database"
+	"ics/icsparser"
 	"ics/service"
 	"os"
 	"os/signal"
@@ -52,4 +54,7 @@ func main() {
 
 	_ = service.NewService(storage)
 
+	d, err := icsparser.ParseICS(ctx, "schedules/ИУ9-62Б.ics")
+
+	fmt.Println(d)
 }

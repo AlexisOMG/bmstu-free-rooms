@@ -9,7 +9,7 @@ require (
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/sirupsen/logrus v1.8.1
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -22,7 +22,10 @@ require (
 	github.com/jackc/pgtype v1.11.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
+	github.com/mattn/go-sqlite3 v1.14.10 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/sys v0.0.0-20220317061510-51cd9980dadf // indirect
 	golang.org/x/text v0.3.7 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
