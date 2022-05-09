@@ -3,11 +3,13 @@ module ics
 go 1.18
 
 require (
+	github.com/Masterminds/squirrel v1.5.2
 	github.com/arran4/golang-ical v0.0.0-20220310045032-03ffe7d907d0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/jmoiron/sqlx v1.3.5
-	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3
+	github.com/sirupsen/logrus v1.8.1
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 require (
@@ -18,6 +20,9 @@ require (
 	github.com/jackc/pgproto3/v2 v2.3.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
 	github.com/jackc/pgtype v1.11.0 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
