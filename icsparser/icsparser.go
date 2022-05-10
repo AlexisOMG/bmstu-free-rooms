@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"ics/service"
 	"io/ioutil"
 	"regexp"
 	"strings"
@@ -12,6 +11,8 @@ import (
 
 	ics "github.com/arran4/golang-ical"
 	"github.com/sirupsen/logrus"
+
+	"github.com/AlexisOMG/bmstu-free-rooms/service"
 )
 
 type Schedule struct {

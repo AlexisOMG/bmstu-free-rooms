@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"ics/database"
 	"os"
 
 	"gopkg.in/yaml.v2"
+
+	"github.com/AlexisOMG/bmstu-free-rooms/database"
 )
 
 type Config struct {

@@ -3,9 +3,10 @@ package database
 import (
 	"context"
 	"fmt"
-	"ics/service"
 
 	"github.com/Masterminds/squirrel"
+
+	"github.com/AlexisOMG/bmstu-free-rooms/service"
 )
 
 var (

@@ -4,15 +4,16 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"ics/database"
-	"ics/icsparser"
-	"ics/service"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/AlexisOMG/bmstu-free-rooms/database"
+	"github.com/AlexisOMG/bmstu-free-rooms/icsparser"
+	"github.com/AlexisOMG/bmstu-free-rooms/service"
 )
 
 func main() {

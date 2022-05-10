@@ -1,4 +1,4 @@
-module ics
+module github.com/AlexisOMG/bmstu-free-rooms
 
 go 1.18
 
