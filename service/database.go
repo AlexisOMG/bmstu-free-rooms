@@ -7,6 +7,7 @@ type ScheduleStorage interface {
 	ListUsers(ctx context.Context, filters *UserFilters) ([]User, error)
 
 	SaveAudiences(ctx context.Context, audiences ...Audience) error
+	ListAudienceByNumber(ctx context.Context, number string, suffix *string) (Audience, error)
 
 	SaveLessons(ctx context.Context, lessons ...Lesson) error
 	ListLessons(ctx context.Context, filters *LessonFilters) ([]Lesson, error)

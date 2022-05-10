@@ -1,6 +1,13 @@
 package service
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var (
+	ErrorNotFound = errors.New("not found")
+)
 
 type ValidationError struct {
 	ObjectKind string

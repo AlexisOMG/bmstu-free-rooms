@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Database *database.Config `yaml:"database"`
+	Database    *database.Config `yaml:"database"`
+	ScheduleDir *string          `yaml:"schedule_dir"`
 }
 
 func readConfig(filename string) (*Config, error) {

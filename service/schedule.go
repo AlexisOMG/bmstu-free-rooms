@@ -58,6 +58,12 @@ func (s *Schedule) computePeriod() error {
 		}
 	}
 
+	locStart := s.Start.Add(time.Hour * 3)
+	s.Start = &locStart
+
+	locEnd := s.End.Add(time.Hour * 3)
+	s.End = &locEnd
+
 	return nil
 }
 
@@ -69,6 +75,10 @@ func (s *Service) SaveSchedules(ctx context.Context, schedules ...Schedule) ([]s
 	schedulesIDs := make([]string, 0, len(schedules))
 
 	for _, s := range schedules {
+		err := s.computePeriod()
+		if err != nil {
+			return []string{}, err
+		}
 		s.ID = uuid.NewString()
 		schedulesIDs = append(schedulesIDs, s.ID)
 		schedulesToSave = append(schedulesToSave, s)

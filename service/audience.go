@@ -74,6 +74,10 @@ func (s *Service) SaveAudiences(ctx context.Context, audiences ...Audience) ([]s
 	return audiencesIDs, nil
 }
 
+func (s *Service) ListAudienceByNumber(ctx context.Context, number string, suffix *string) (Audience, error) {
+	return s.scheduleStorage.ListAudienceByNumber(ctx, number, suffix)
+}
+
 type EmptyAudiencesFilter struct {
 	Building string
 	WeekType string

@@ -85,6 +85,28 @@ func (d *Database) SaveAudiences(ctx context.Context, audiences ...service.Audie
 	return nil
 }
 
+func (d *Database) ListAudienceByNumber(ctx context.Context, number string, suffix *string) (service.Audience, error) {
+	res := service.Audience{}
+	query := squirrel.Select(append([]string{"id"}, audiencesFieldNames...)...).
+		From(audienceTable).PlaceholderFormat(squirrel.Dollar)
+	query = query.Where(squirrel.Eq{"number": number})
+	if suffix != nil {
+		query = query.Where(squirrel.Eq{"suffix": suffix})
+	}
+
+	sqlText, bound, err := query.ToSql()
+
+	if err != nil {
+		return service.Audience{}, fmt.Errorf("failed to build selection %v SQL: %w", audienceTable, err)
+	}
+
+	if err = d.db.GetContext(ctx, &res, sqlText, bound...); err != nil {
+		return service.Audience{}, mapErrors(err, "cannot select "+audienceTable+": %w")
+	}
+
+	return res, nil
+}
+
 func (s *Database) ListEmptyAudiences(ctx context.Context, filters *service.EmptyAudiencesFilter) ([]service.Audience, error) {
 	return nil, nil
 }

@@ -46,6 +46,14 @@ func groupToDB(l service.Group) group {
 	}
 }
 
+func groupsToService(gs []group) []service.Group {
+	res := make([]service.Group, 0, len(gs))
+	for i := range gs {
+		res = append(res, gs[i].toService())
+	}
+	return res
+}
+
 func (d *Database) SaveGroups(ctx context.Context, groups ...service.Group) error {
 	if len(groups) == 0 {
 		return nil
@@ -76,7 +84,27 @@ func (d *Database) SaveGroups(ctx context.Context, groups ...service.Group) erro
 }
 
 func (d *Database) ListGroups(ctx context.Context, filters *service.GroupFilters) ([]service.Group, error) {
-	return nil, nil
+	res := make([]group, 0)
+	query := squirrel.Select(append([]string{"id"}, groupsFieldNames...)...).
+		From(groupTable).PlaceholderFormat(squirrel.Dollar)
+	if filters.Name != nil {
+		query = query.Where(squirrel.Eq{"name": filters.Name})
+	}
+
+	sqlText, bound, err := query.ToSql()
+	if err != nil {
+		return []service.Group{}, fmt.Errorf("failed to build selection %v SQL: %w", groupTable, err)
+	}
+
+	if err := d.db.SelectContext(ctx, &res, sqlText, bound...); err != nil {
+		return []service.Group{}, mapErrors(err, "cannot select "+groupTable+": %w")
+	}
+
+	if len(res) == 0 {
+		return []service.Group{}, service.ErrorNotFound
+	}
+
+	return groupsToService(res), nil
 }
 
 type groupLesson struct {

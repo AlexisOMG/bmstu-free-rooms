@@ -95,7 +95,7 @@ func (d *Database) SaveSchedules(ctx context.Context, schedules ...service.Sched
 	}
 
 	if _, err = d.db.ExecContext(ctx, sql, bound...); err != nil {
-		return fmt.Errorf("cannot insert query: %v, args %v, into %v: %w", query, bound, scheduleTable, err)
+		return fmt.Errorf("cannot insert query: %v, args %v, into %v: %w", sql, bound, scheduleTable, err)
 	}
 
 	return nil
