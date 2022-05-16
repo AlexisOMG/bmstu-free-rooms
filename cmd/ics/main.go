@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -65,80 +64,4 @@ func main() {
 	// 	logger.WithError(err).Fatal("ListEmptyAudiences failed")
 	// }
 	// fmt.Println(audiences)
-	// d, err := icsparser.ParseICS(ctx, "schedules/ИУ9-62Б.ics")
-
-	// err = icsparser.SaveData(ctx, srvc, d)
-	// if err != nil {
-	// 	logger.WithError(err).Fatal("ics parse failed")
-	// }
-
-	// files, err := ioutil.ReadDir(*conf.ScheduleDir)
-	// if err != nil {
-	// 	logger.WithError(err).Fatal("schedules dir reading failed")
-	// }
-
-	// schedules := make([]string, 0, 1024)
-
-	// for _, f := range files {
-	// 	if !f.IsDir() {
-	// 		schedules = append(schedules, *conf.ScheduleDir+"/"+f.Name())
-	// 	}
-	// }
-
-	// for _, s := range schedules {
-	// 	fmt.Println("PROCESSING: ", s)
-	// 	d, err := icsparser.ParseICS(ctx, s)
-	// 	if err != nil {
-	// 		logger.WithError(err).Fatal("ics parse failed")
-	// 	}
-	// 	err = icsparser.SaveData(ctx, srvc, d)
-	// 	if err != nil {
-	// 		logger.WithError(err).Fatal("ics save failed")
-	// 	}
-	// 	fmt.Println("PROCESSED: ", s)
-	// }
-
-	// fmt.Println(schedules, len(schedules))
-
-	// icsFiles := make(chan string, len(schedules))
-	// errs := make(chan error)
-
-	// for _, s := range schedules {
-	// 	icsFiles <- s
-	// }
-
-	// wg := sync.WaitGroup{}
-
-	// for i := 0; i < 5; i++ {
-	// 	wg.Add(1)
-	// 	go func(w *sync.WaitGroup, in chan string, errs chan error) {
-	// 		defer w.Done()
-	// 		for {
-	// 			m, ok := <-in
-	// 			if !ok {
-	// 				return
-	// 			}
-	// 			d, err := icsparser.ParseICS(ctx, m)
-	// 			if err != nil {
-	// 				errs <- err
-	// 				return
-	// 			}
-	// 			if err := icsparser.SaveData(ctx, srvc, d); err != nil {
-	// 				errs <- err
-	// 				return
-	// 			}
-	// 		}
-	// 	}(&wg, icsFiles, errs)
-	// }
-
-	// go func() {
-	// 	wg.Wait()
-	// 	close(errs)
-	// }()
-
-	// for err := range errs {
-	// 	logger.WithError(err).Fatal("failed to process ics")
-	// }
-
-	fmt.Println("DONE")
 }

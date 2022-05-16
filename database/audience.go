@@ -127,6 +127,7 @@ func (d *Database) ListAudienceByNumber(ctx context.Context, number string, suff
 
 func (d *Database) ListEmptyAudiences(ctx context.Context, filters *service.EmptyAudiencesFilter) ([]service.Audience, error) {
 	res := []audience{}
+
 	query := squirrel.Select(withPrefix(append([]string{"id"}, audiencesFieldNames...), "a")...).
 		From(audienceTable+" a").
 		LeftJoin(`(
@@ -137,11 +138,12 @@ func (d *Database) ListEmptyAudiences(ctx context.Context, filters *service.Empt
 		Where(squirrel.Eq{"t.audience_id": nil}).
 		Where(squirrel.Eq{"a.building": filters.Building}).
 		Where(squirrel.Eq{"a.floor": filters.Floor}).PlaceholderFormat(squirrel.Dollar)
+
 	sqlText, bound, err := query.ToSql()
 	if err != nil {
 		return []service.Audience{}, err
 	}
-	fmt.Println(sqlText, bound)
+
 	if err = d.db.SelectContext(ctx, &res, sqlText, bound...); err != nil {
 		return []service.Audience{}, mapErrors(err, "cannot select "+audienceTable+": %w")
 	}

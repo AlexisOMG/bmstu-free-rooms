@@ -26,17 +26,6 @@ func NewDatabase(ctx context.Context, cfg *Config) (*Database, error) {
 
 	dbx := sqlx.NewDb(sql.OpenDB(ctor), "pgx")
 
-	// dbdrv, err := postgres.WithInstance(dbx.DB, &postgres.Config{})
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// s := source.Driver
-	// migrator, err := migrate.NewWithInstance("fs", s, "ics", dbdrv)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	return &Database{dbx}, nil
 }
 
