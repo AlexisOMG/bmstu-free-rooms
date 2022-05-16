@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/AlexisOMG/bmstu-free-rooms/database"
-	"github.com/AlexisOMG/bmstu-free-rooms/icsparser"
 	"github.com/AlexisOMG/bmstu-free-rooms/service"
 )
 
@@ -54,8 +52,19 @@ func main() {
 	}
 	logger.Info("connected to database")
 
-	srvc := service.NewService(storage)
+	_ = service.NewService(storage)
 
+	// audiences, err := srvc.ListEmptyAudiences(ctx, &service.EmptyAudiencesFilter{
+	// 	Building: "ГЗ",
+	// 	WeekType: "ЧС",
+	// 	WeekDay:  "Tuesday",
+	// 	Period:   1,
+	// 	Floor:    3,
+	// })
+	// if err != nil {
+	// 	logger.WithError(err).Fatal("ListEmptyAudiences failed")
+	// }
+	// fmt.Println(audiences)
 	// d, err := icsparser.ParseICS(ctx, "schedules/ИУ9-62Б.ics")
 
 	// err = icsparser.SaveData(ctx, srvc, d)
@@ -63,31 +72,31 @@ func main() {
 	// 	logger.WithError(err).Fatal("ics parse failed")
 	// }
 
-	files, err := ioutil.ReadDir(*conf.ScheduleDir)
-	if err != nil {
-		logger.WithError(err).Fatal("schedules dir reading failed")
-	}
+	// files, err := ioutil.ReadDir(*conf.ScheduleDir)
+	// if err != nil {
+	// 	logger.WithError(err).Fatal("schedules dir reading failed")
+	// }
 
-	schedules := make([]string, 0, 1024)
+	// schedules := make([]string, 0, 1024)
 
-	for _, f := range files {
-		if !f.IsDir() {
-			schedules = append(schedules, *conf.ScheduleDir+"/"+f.Name())
-		}
-	}
+	// for _, f := range files {
+	// 	if !f.IsDir() {
+	// 		schedules = append(schedules, *conf.ScheduleDir+"/"+f.Name())
+	// 	}
+	// }
 
-	for _, s := range schedules {
-		fmt.Println("PROCESSING: ", s)
-		d, err := icsparser.ParseICS(ctx, s)
-		if err != nil {
-			logger.WithError(err).Fatal("ics parse failed")
-		}
-		err = icsparser.SaveData(ctx, srvc, d)
-		if err != nil {
-			logger.WithError(err).Fatal("ics save failed")
-		}
-		fmt.Println("PROCESSED: ", s)
-	}
+	// for _, s := range schedules {
+	// 	fmt.Println("PROCESSING: ", s)
+	// 	d, err := icsparser.ParseICS(ctx, s)
+	// 	if err != nil {
+	// 		logger.WithError(err).Fatal("ics parse failed")
+	// 	}
+	// 	err = icsparser.SaveData(ctx, srvc, d)
+	// 	if err != nil {
+	// 		logger.WithError(err).Fatal("ics save failed")
+	// 	}
+	// 	fmt.Println("PROCESSED: ", s)
+	// }
 
 	// fmt.Println(schedules, len(schedules))
 

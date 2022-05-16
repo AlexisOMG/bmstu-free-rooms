@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Masterminds/squirrel"
 
@@ -18,6 +19,14 @@ var (
 		"suffix",
 	}
 )
+
+func withPrefix(fields []string, prefix string) []string {
+	res := make([]string, 0, len(fields))
+	for _, field := range fields {
+		res = append(res, strings.Join([]string{prefix, field}, "."))
+	}
+	return res
+}
 
 type audience struct {
 	ID       string  `db:"id"`
@@ -57,6 +66,14 @@ func audienceToDB(a service.Audience) audience {
 	}
 }
 
+func audiencesToService(audiences []audience) []service.Audience {
+	res := make([]service.Audience, 0, len(audiences))
+	for _, aud := range audiences {
+		res = append(res, aud.toService())
+	}
+	return res
+}
+
 func (d *Database) SaveAudiences(ctx context.Context, audiences ...service.Audience) error {
 	if len(audiences) == 0 {
 		return nil
@@ -87,7 +104,7 @@ func (d *Database) SaveAudiences(ctx context.Context, audiences ...service.Audie
 }
 
 func (d *Database) ListAudienceByNumber(ctx context.Context, number string, suffix *string) (service.Audience, error) {
-	res := service.Audience{}
+	res := audience{}
 	query := squirrel.Select(append([]string{"id"}, audiencesFieldNames...)...).
 		From(audienceTable).PlaceholderFormat(squirrel.Dollar)
 	query = query.Where(squirrel.Eq{"number": number})
@@ -105,9 +122,28 @@ func (d *Database) ListAudienceByNumber(ctx context.Context, number string, suff
 		return service.Audience{}, mapErrors(err, "cannot select "+audienceTable+": %w")
 	}
 
-	return res, nil
+	return res.toService(), nil
 }
 
-func (s *Database) ListEmptyAudiences(ctx context.Context, filters *service.EmptyAudiencesFilter) ([]service.Audience, error) {
-	return nil, nil
+func (d *Database) ListEmptyAudiences(ctx context.Context, filters *service.EmptyAudiencesFilter) ([]service.Audience, error) {
+	res := []audience{}
+	query := squirrel.Select(withPrefix(append([]string{"id"}, audiencesFieldNames...), "a")...).
+		From(audienceTable+" a").
+		LeftJoin(`(
+		select s1.* from schedule s1
+		inner join audience a1 on s1.audience_id = a1.id
+		where s1.week_type = ? and week_day = ? and s1.period = ? and a1.building = ? and a1.floor = ?
+	) t on t.audience_id = a.id`, filters.WeekType, filters.WeekDay, filters.Period, filters.Building, filters.Floor).
+		Where(squirrel.Eq{"t.audience_id": nil}).
+		Where(squirrel.Eq{"a.building": filters.Building}).
+		Where(squirrel.Eq{"a.floor": filters.Floor}).PlaceholderFormat(squirrel.Dollar)
+	sqlText, bound, err := query.ToSql()
+	if err != nil {
+		return []service.Audience{}, err
+	}
+	fmt.Println(sqlText, bound)
+	if err = d.db.SelectContext(ctx, &res, sqlText, bound...); err != nil {
+		return []service.Audience{}, mapErrors(err, "cannot select "+audienceTable+": %w")
+	}
+	return audiencesToService(res), nil
 }
