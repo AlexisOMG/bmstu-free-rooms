@@ -1,2 +1,3 @@
-schedules/
 .DS_Store
+config.yaml
+schedules
