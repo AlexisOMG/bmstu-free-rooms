@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Database    *database.Config `yaml:"database"`
 	ScheduleDir *string          `yaml:"schedule_dir"`
+	Token       *string          `yaml:"bot_token"`
 }
 
 func readConfig(filename string) (*Config, error) {
