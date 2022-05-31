@@ -56,7 +56,13 @@ func main() {
 
 	srvc := service.NewService(storage)
 
-	queries := make(map[int64]service.EmptyAudiencesFilter)
+	type Query struct {
+		MessageID int
+		Filter    service.EmptyAudiencesFilter
+	}
+
+	queries := make(map[int64]Query)
+
 	bot, err := tgbotapi.NewBotAPI(*conf.Token)
 	if err != nil {
 		logger.WithError(err).Fatal("cannot connect to bot")
@@ -87,7 +93,7 @@ func main() {
 		fmt.Println("UPDATE ID: ", update.UpdateID)
 		if update.Message != nil {
 			if update.Message.Text != "" && update.Message.Text == "/start" {
-				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Select Week Day")
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, "День недели")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				keyboard.InlineKeyboard = [][]tgbotapi.InlineKeyboardButton{
 					{tgbotapi.NewInlineKeyboardButtonData("Sunday", "Sunday")},
@@ -99,8 +105,12 @@ func main() {
 					{tgbotapi.NewInlineKeyboardButtonData("Saturday", "Saturday")},
 				}
 				msg.ReplyMarkup = keyboard
-				if _, err := bot.Send(msg); err != nil {
+				cm, err := bot.Send(msg)
+				if err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
+				}
+				queries[update.Message.Chat.ID] = Query{
+					MessageID: cm.MessageID,
 				}
 			} else {
 				logger.WithField("unknown msg", update.Message).Warning()
@@ -108,43 +118,46 @@ func main() {
 		} else if update.CallbackQuery != nil {
 			clq := update.CallbackQuery
 			switch clq.Message.Text {
-			case "Select Week Day":
-				queries[clq.Message.Chat.ID] = service.EmptyAudiencesFilter{
-					WeekDay: clq.Data,
-				}
-				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Select Week Type")
+			case "День недели":
+				query := queries[clq.Message.Chat.ID]
+				query.Filter.WeekDay = clq.Data
+				queries[clq.Message.Chat.ID] = query
+
+				// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Числитель или Знаменатель")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				keyboard.InlineKeyboard = [][]tgbotapi.InlineKeyboardButton{
 					{tgbotapi.NewInlineKeyboardButtonData("ЧС", "ЧС")},
 					{tgbotapi.NewInlineKeyboardButtonData("ЗН", "ЗН")},
 				}
-				msg.ReplyMarkup = keyboard
+				// msg.ReplyMarkup = keyboard
+				msg := tgbotapi.NewEditMessageTextAndMarkup(clq.Message.Chat.ID, query.MessageID, "Числитель или Знаменатель", keyboard)
 				if _, err := bot.Send(msg); err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
 				}
 				fmt.Println(queries)
-			case "Select Week Type":
-				filter := queries[clq.Message.Chat.ID]
-				filter.WeekType = clq.Data
-				queries[clq.Message.Chat.ID] = filter
+			case "Числитель или Знаменатель":
+				query := queries[clq.Message.Chat.ID]
+				query.Filter.WeekType = clq.Data
+				queries[clq.Message.Chat.ID] = query
 
-				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Select Building")
+				// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Корпус")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				keyboard.InlineKeyboard = [][]tgbotapi.InlineKeyboardButton{
 					{tgbotapi.NewInlineKeyboardButtonData("ГЗ", "ГЗ")},
 					{tgbotapi.NewInlineKeyboardButtonData("УЛК", "УЛК")},
 				}
-				msg.ReplyMarkup = keyboard
+				// msg.ReplyMarkup = keyboard
+				msg := tgbotapi.NewEditMessageTextAndMarkup(clq.Message.Chat.ID, query.MessageID, "Корпус", keyboard)
 				if _, err := bot.Send(msg); err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
 				}
 				fmt.Println(queries)
-			case "Select Building":
-				filter := queries[clq.Message.Chat.ID]
-				filter.Building = clq.Data
-				queries[clq.Message.Chat.ID] = filter
+			case "Корпус":
+				query := queries[clq.Message.Chat.ID]
+				query.Filter.Building = clq.Data
+				queries[clq.Message.Chat.ID] = query
 
-				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Select Floor")
+				// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Этаж")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				if clq.Data == "ГЗ" {
 					for i := 1; i <= 5; i++ {
@@ -159,40 +172,42 @@ func main() {
 						})
 					}
 				}
-				msg.ReplyMarkup = keyboard
+				// msg.ReplyMarkup = keyboard
+				msg := tgbotapi.NewEditMessageTextAndMarkup(clq.Message.Chat.ID, query.MessageID, "Этаж", keyboard)
 				if _, err := bot.Send(msg); err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
 				}
 				fmt.Println(queries)
-			case "Select Floor":
-				filter := queries[clq.Message.Chat.ID]
+			case "Этаж":
+				query := queries[clq.Message.Chat.ID]
 				floor, err := strconv.Atoi(clq.Data)
 				if err != nil {
 					logger.WithError(err).Fatal("cannot convert floor")
 				}
-				filter.Floor = floor
-				queries[clq.Message.Chat.ID] = filter
+				query.Filter.Floor = floor
+				queries[clq.Message.Chat.ID] = query
 
-				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Select Period")
+				// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Пара")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				for i := 1; i <= 7; i++ {
 					keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, []tgbotapi.InlineKeyboardButton{
 						tgbotapi.NewInlineKeyboardButtonData(strconv.Itoa(i), strconv.Itoa(i)),
 					})
 				}
-				msg.ReplyMarkup = keyboard
+				// msg.ReplyMarkup = keyboard
+				msg := tgbotapi.NewEditMessageTextAndMarkup(clq.Message.Chat.ID, query.MessageID, "Пара", keyboard)
 				if _, err := bot.Send(msg); err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
 				}
 				fmt.Println(queries)
-			case "Select Period":
-				filter := queries[clq.Message.Chat.ID]
+			case "Пара":
+				query := queries[clq.Message.Chat.ID]
 				period, err := strconv.Atoi(clq.Data)
 				if err != nil {
 					logger.WithError(err).Fatal("cannot convert period")
 				}
-				filter.Period = period
-				auds, err := srvc.ListEmptyAudiences(ctx, &filter)
+				query.Filter.Period = period
+				auds, err := srvc.ListEmptyAudiences(ctx, &query.Filter)
 				if err != nil {
 					logger.WithError(err).Fatal("cannot list empty audiences")
 				}
@@ -217,7 +232,7 @@ func main() {
 					}
 					delete(queries, clq.Message.Chat.ID)
 				}
-				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Select Week Day")
+				msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "День недели")
 				keyboard := tgbotapi.InlineKeyboardMarkup{}
 				keyboard.InlineKeyboard = [][]tgbotapi.InlineKeyboardButton{
 					{tgbotapi.NewInlineKeyboardButtonData("Sunday", "Sunday")},
@@ -229,8 +244,12 @@ func main() {
 					{tgbotapi.NewInlineKeyboardButtonData("Saturday", "Saturday")},
 				}
 				msg.ReplyMarkup = keyboard
-				if _, err := bot.Send(msg); err != nil {
+				cm, err := bot.Send(msg)
+				if err != nil {
 					logger.WithError(err).Fatal("cannot send msg to bot")
+				}
+				queries[clq.Message.Chat.ID] = Query{
+					MessageID: cm.MessageID,
 				}
 			default:
 				logger.WithField("unknown query", clq).Fatal()
