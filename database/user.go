@@ -52,6 +52,14 @@ func userToDB(u *service.User) user {
 	}
 }
 
+func usersToService(users []user) []service.User {
+	res := make([]service.User, 0, len(users))
+	for _, usr := range users {
+		res = append(res, usr.toService())
+	}
+	return res
+}
+
 func (d *Database) SaveUser(ctx context.Context, user *service.User) error {
 	dbUser := userToDB(user)
 
@@ -75,5 +83,23 @@ func (d *Database) SaveUser(ctx context.Context, user *service.User) error {
 }
 
 func (d *Database) ListUsers(ctx context.Context, filters *service.UserFilters) ([]service.User, error) {
-	return nil, nil
+	res := []user{}
+
+	query := squirrel.Select(append([]string{"id"}, usersFieldNames...)...).
+		From(userTable).PlaceholderFormat(squirrel.Dollar)
+
+	if len(filters.TelegramIDs) > 0 {
+		query = query.Where(squirrel.Eq{"telegram_id": filters.TelegramIDs})
+	}
+
+	sqlText, bound, err := query.ToSql()
+	if err != nil {
+		return []service.User{}, err
+	}
+
+	if err = d.db.SelectContext(ctx, &res, sqlText, bound...); err != nil {
+		return []service.User{}, mapErrors(err, "cannot select "+userTable+": %w")
+	}
+
+	return usersToService(res), nil
 }

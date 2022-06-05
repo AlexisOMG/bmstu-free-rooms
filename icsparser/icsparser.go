@@ -39,7 +39,7 @@ var (
 	scheduleReg = regexp.MustCompile(`^Расписание `)
 )
 
-func ParseICS(ctx context.Context, path string) (Data, error) {
+func parseICS(ctx context.Context, path string) (Data, error) {
 	d, err := ioutil.ReadFile(path)
 	if err != nil {
 		return Data{}, err
@@ -107,7 +107,7 @@ func ParseICS(ctx context.Context, path string) (Data, error) {
 	return res, nil
 }
 
-func SaveData(ctx context.Context, srvc *service.Service, data Data) error {
+func saveData(ctx context.Context, srvc *service.Service, data Data) error {
 	log := ctx.Value("logger").(*logrus.Logger)
 	var groupID string
 	if loc := scheduleReg.FindStringIndex(data.Group); loc != nil {
@@ -313,6 +313,37 @@ func SaveData(ctx context.Context, srvc *service.Service, data Data) error {
 			default:
 				return fmt.Errorf("smth went wrong: %v", data)
 			}
+		}
+	}
+
+	return nil
+}
+
+func ProcessICSFiles(ctx context.Context, srvc *service.Service, pathToICS string) error {
+	log := ctx.Value("logger").(*logrus.Logger)
+
+	files, err := ioutil.ReadDir(pathToICS)
+	if err != nil {
+		return fmt.Errorf("failed to read dir with ics files: %w", err)
+	}
+	schedules := make([]string, 0, 1024)
+
+	for _, f := range files {
+		if !f.IsDir() {
+			schedules = append(schedules, pathToICS+"/"+f.Name())
+		}
+	}
+
+	log.WithField("schedules_count", len(schedules)).Info("count of ics files in schedule dir")
+
+	for _, s := range schedules {
+		d, err := parseICS(ctx, s)
+		if err != nil {
+			return fmt.Errorf("failed to parse %s: %w", s, err)
+		}
+		err = saveData(ctx, srvc, d)
+		if err != nil {
+			return fmt.Errorf("failed to save %s in db: %w", s, err)
 		}
 	}
 

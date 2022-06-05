@@ -5,10 +5,12 @@ go 1.18
 require (
 	github.com/Masterminds/squirrel v1.5.2
 	github.com/arran4/golang-ical v0.0.0-20220310045032-03ffe7d907d0
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/sirupsen/logrus v1.8.1
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	gopkg.in/yaml.v2 v2.4.0
 )
 
