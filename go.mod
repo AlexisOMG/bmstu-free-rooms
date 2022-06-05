@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/sirupsen/logrus v1.8.1
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	gopkg.in/yaml.v2 v2.4.0
 )
 

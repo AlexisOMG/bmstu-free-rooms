@@ -33,8 +33,8 @@ func (l *group) toService() service.Group {
 	}
 }
 
-func (l *group) values() []interface{} {
-	return []interface{}{
+func (l *group) values() []any {
+	return []any{
 		l.ID,
 		l.Name,
 	}
