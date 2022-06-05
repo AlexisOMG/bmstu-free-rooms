@@ -37,12 +37,12 @@ func (d *downloader) DownloadICS(ctx context.Context) error {
 	for ref, group := range refs {
 		resp, err := http.Get(ref)
 		if err != nil {
-			logger.WithError(err).Warning("cannot get schedule ref")
+			logger.WithError(err).Warning("cannot download schedule")
 			continue
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			logger.WithError(fmt.Errorf("unknown error: %d, %s, %s", resp.StatusCode, ref, group)).Warning("cannot get schedule ref")
+			logger.WithError(fmt.Errorf("bad status code: %d, %s, %s", resp.StatusCode, ref, group)).Warning("cannot download schedule")
 			continue
 		}
 

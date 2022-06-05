@@ -26,7 +26,7 @@ type telegramBot struct {
 	token string
 }
 
-type Query struct {
+type queryStore struct {
 	MessageID int
 	Filter    service.EmptyAudiencesFilter
 }
@@ -53,7 +53,7 @@ func translateWeekDay(weekDay string) string {
 func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 	logger := ctx.Value("logger").(*logrus.Logger)
 
-	queries := make(map[int64]Query)
+	queries := make(map[int64]queryStore)
 
 	bot, err := tgbotapi.NewBotAPI(tb.token)
 	if err != nil {
@@ -94,7 +94,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 						if err != nil {
 							logger.WithError(err).Fatal("cannot send msg to bot")
 						}
-						queries[update.Message.Chat.ID] = Query{
+						queries[update.Message.Chat.ID] = queryStore{
 							MessageID: cm.MessageID,
 						}
 					} else {
@@ -233,7 +233,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 						if err != nil {
 							logger.WithError(err).Fatal("cannot send msg to bot")
 						}
-						queries[clq.Message.Chat.ID] = Query{
+						queries[clq.Message.Chat.ID] = queryStore{
 							MessageID: cm.MessageID,
 						}
 					default:
