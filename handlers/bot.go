@@ -106,6 +106,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 					case "День недели":
 						query := queries[clq.Message.Chat.ID]
 						query.Filter.WeekDay = translateWeekDay(clq.Data)
+						query.MessageID = clq.Message.MessageID
 						queries[clq.Message.Chat.ID] = query
 
 						// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Числитель или Знаменатель")
@@ -123,6 +124,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 					case "Числитель или Знаменатель":
 						query := queries[clq.Message.Chat.ID]
 						query.Filter.WeekType = clq.Data
+						query.MessageID = clq.Message.MessageID
 						queries[clq.Message.Chat.ID] = query
 
 						// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Корпус")
@@ -140,6 +142,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 					case "Корпус":
 						query := queries[clq.Message.Chat.ID]
 						query.Filter.Building = clq.Data
+						query.MessageID = clq.Message.MessageID
 						queries[clq.Message.Chat.ID] = query
 
 						// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Этаж")
@@ -170,6 +173,7 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 							logger.WithError(err).Fatal("cannot convert floor")
 						}
 						query.Filter.Floor = floor
+						query.MessageID = clq.Message.MessageID
 						queries[clq.Message.Chat.ID] = query
 
 						// msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Пара")
@@ -195,13 +199,16 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 						auds, err := srvc.ListEmptyAudiences(ctx, &query.Filter)
 						if err != nil {
 							logger.WithError(err).Fatal("cannot list empty audiences")
+							msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Что-то пошло не так:(\nПопробуй нажать /start")
+							if _, err := bot.Send(msg); err != nil {
+								logger.WithError(err).Fatal("cannot send msg to bot")
+							}
 						}
 						if len(auds) == 0 {
 							msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "Нет свободных аудиторий")
 							if _, err := bot.Send(msg); err != nil {
 								logger.WithError(err).Fatal("cannot send msg to bot")
 							}
-							delete(queries, clq.Message.Chat.ID)
 						} else {
 							resp := ""
 							for _, aud := range auds {
@@ -215,8 +222,8 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 							if _, err := bot.Send(msg); err != nil {
 								logger.WithError(err).Fatal("cannot send msg to bot")
 							}
-							delete(queries, clq.Message.Chat.ID)
 						}
+						delete(queries, clq.Message.Chat.ID)
 						msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "День недели")
 						keyboard := tgbotapi.InlineKeyboardMarkup{}
 						keyboard.InlineKeyboard = [][]tgbotapi.InlineKeyboardButton{
