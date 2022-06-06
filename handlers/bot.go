@@ -222,7 +222,6 @@ func (tb *telegramBot) Listen(ctx context.Context, srvc *service.Service) {
 							if _, err := bot.Send(msg); err != nil {
 								logger.WithError(err).Fatal("cannot send msg to bot")
 							}
-
 						}
 						delete(queries, clq.Message.Chat.ID)
 						msg := tgbotapi.NewMessage(clq.Message.Chat.ID, "День недели")
