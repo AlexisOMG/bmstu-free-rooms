@@ -130,11 +130,8 @@ func (d *Database) ListEmptyAudiences(ctx context.Context, filters *service.Empt
 
 	query := squirrel.Select(withPrefix(append([]string{"id"}, audiencesFieldNames...), "a")...).
 		From(audienceTable+" a").
-		LeftJoin(`(
-		select s1.* from schedule s1
-		inner join audience a1 on s1.audience_id = a1.id
-		where s1.week_type = ? and week_day = ? and s1.period = ? and a1.building = ? and a1.floor = ?
-	) t on t.audience_id = a.id`, filters.WeekType, filters.WeekDay, filters.Period, filters.Building, filters.Floor).
+		LeftJoin(`schedule t on t.week_type = ? and t.week_day = ? and t.period = ? and t.audience_id = a.id`,
+			filters.WeekType, filters.WeekDay, filters.Period).
 		Where(squirrel.Eq{"t.audience_id": nil}).
 		Where(squirrel.Eq{"a.building": filters.Building}).
 		Where(squirrel.Eq{"a.floor": filters.Floor}).PlaceholderFormat(squirrel.Dollar)
