@@ -44,3 +44,9 @@ CREATE TABLE IF NOT EXISTS group_lesson (
   lesson_id UUID  NOT NULL REFERENCES lesson(id),
   CONSTRAINT group_lesson_unique UNIQUE(group_id, lesson_id)
 );
+
+CREATE INDEX IF NOT EXISTS schedule_week_type_idx ON schedule USING btree (week_type);
+CREATE INDEX IF NOT EXISTS schedule_weekday_idx ON schedule USING btree (week_day);
+CREATE INDEX IF NOT EXISTS schedule_period_idx ON schedule USING btree (period);
+CREATE INDEX IF NOT EXISTS audience_building_idx ON audience USING btree (building);
+CREATE INDEX IF NOT EXISTS audience_floor_idx ON audience USING btree (floor);
