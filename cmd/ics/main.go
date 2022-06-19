@@ -11,6 +11,7 @@ import (
 
 	"github.com/AlexisOMG/bmstu-free-rooms/database"
 	"github.com/AlexisOMG/bmstu-free-rooms/handlers"
+	"github.com/AlexisOMG/bmstu-free-rooms/icsparser"
 	"github.com/AlexisOMG/bmstu-free-rooms/service"
 )
 
@@ -33,6 +34,7 @@ func main() {
 	ctx = context.WithValue(ctx, "logger", logger)
 
 	configPath := flag.String("c", "config.yaml", "path to your config")
+	needDownload := flag.Bool("p", false, "use it for downloading schedule")
 	flag.Parse()
 
 	conf, err := readConfig(*configPath)
@@ -53,6 +55,20 @@ func main() {
 	logger.Info("connected to database")
 
 	srvc := service.NewService(storage)
+
+	if needDownload != nil && *needDownload {
+		downloader := handlers.NewICSDownloader(*conf.ScheduleDir)
+		err = downloader.DownloadICS(ctx)
+		if err != nil {
+			logger.WithError(err).Fatal("ics loading failed")
+		}
+		logger.Info("loaded ics files")
+		err = icsparser.ProcessICSFiles(ctx, srvc, *conf.ScheduleDir)
+		if err != nil {
+			logger.WithError(err).Fatal("ics processing failed")
+		}
+		logger.Info("processed ics files")
+	}
 
 	bot := handlers.NewBot(*conf.Token)
 
