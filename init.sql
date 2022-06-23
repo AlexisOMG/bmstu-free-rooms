@@ -2,7 +2,8 @@ CREATE TABLE IF NOT EXISTS user_info (
   id UUID PRIMARY KEY,
   telegram_id VARCHAR NOT NULL,
   username VARCHAR,
-  phone VARCHAR,
+  firstname VARCHAR,
+  lastname VARCHAR,
   CONSTRAINT telegram_unique UNIQUE(telegram_id)
 );
 
