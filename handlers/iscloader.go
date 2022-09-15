@@ -37,26 +37,34 @@ func (d *downloader) DownloadICS(ctx context.Context) error {
 	for ref, group := range refs {
 		resp, err := http.Get(ref)
 		if err != nil {
+			resp.Body.Close()
 			logger.WithError(err).Warning("cannot download schedule")
 			continue
 		}
-		defer resp.Body.Close()
+
 		if resp.StatusCode != 200 {
+			resp.Body.Close()
 			logger.WithError(fmt.Errorf("bad status code: %d, %s, %s", resp.StatusCode, ref, group)).Warning("cannot download schedule")
 			continue
 		}
 
 		out, err := os.Create(d.pathToDir + "/" + group + ".ics")
 		if err != nil {
+			resp.Body.Close()
+			out.Close()
 			logger.WithError(err).Warning("cannot create ics file")
 			continue
 		}
-		defer out.Close()
 
 		_, err = io.Copy(out, resp.Body)
 		if err != nil {
+			resp.Body.Close()
+			out.Close()
 			logger.WithError(err).Warning("cannot copy ics file")
 		}
+
+		resp.Body.Close()
+		out.Close()
 	}
 	return nil
 }
