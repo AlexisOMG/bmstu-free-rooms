@@ -91,7 +91,7 @@ func getElementsByClass(node *html.Node, class string) []*html.Node {
 type ScheduleRef map[string]string
 
 func getAllScheduleRefs() (ScheduleRef, error) {
-	className := "col-xs-10"
+	className := "pl-1"
 	url := "https://lks.bmstu.ru/schedule/list"
 	res := make(ScheduleRef)
 
